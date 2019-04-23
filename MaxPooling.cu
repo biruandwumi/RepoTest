@@ -19,15 +19,17 @@ __global__ void MaxPool(const float *A, float *C, int in_rows, int in_cols, int 
 
     if (i < out_rows && j < out_cols){
         int offset_i = i * stride;
-		int offset_j = j * stride;
-		for(int k_row_index = offset_i; k_row_index < offset_i + kernel_size; k_row_index++){
-			for(int k_col_index = offset_j; k_col_index < offset_j + kernel_size; k_col_index++){
-				if(k_row_index >= in_rows || k_col_index >= in_cols)
-						continue;
-					C[i * out_cols + j] = max(C[i * out_cols + j], A[k_row_index * in_cols + k_col_index]);
-			}
+	int offset_j = j * stride;
+	float temp = FLT_MIN;
+	for(int k_row_index = offset_i; k_row_index < offset_i + kernel_size; k_row_index++){
+		for(int k_col_index = offset_j; k_col_index < offset_j + kernel_size; k_col_index++){
+			if(k_row_index >= in_rows || k_col_index >= in_cols)
+				continue;
+			temp = max(temp, A[k_row_index * in_cols + k_col_index]);
 		}
 	}
+	C[i * out_cols + j] = temp;
+    }
 }
 
 void HelperOutputDim(int in_row, int in_col, int stride, int kernel_size, int &out_row, int &out_col, int padding_policy){
